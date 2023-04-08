@@ -18,7 +18,7 @@ def game_data_save(game_data):
 
     with open('GameResults.csv', 'a') as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
-        writer.writerow([game_data.get('game_date'), game_data.get('pack_name')])
+        writer.writerow([game_data.get('game_date'), game_data.get('pack_name'), game_data.get('fable_list')])
         writer.writerows(game_data.get('player_data'))
     csvfile.close()
 
@@ -35,6 +35,10 @@ def parse_game(link):
     # extracting data about game
     pack_name = soup.find("div", class_="absolute top-0 left-16 flex items-center justify-center text-start mt-1 px-2 font-bold bg-gray-800 bg-opacity-70 rounded-md z-0").get_text().replace("\t", "").replace(
             "\r", "").replace("\n", "")
+    fables = soup.find_all("section", {'class': "flex items-center justify-center gap-2 w-full h-full p-1"})
+    fable_list = []
+    for fable in fables:
+        fable_list.append(fable.get_text().replace("\t", "").replace("\r", "").replace("\n", "").lstrip().rstrip())
     # extracting data about players
     roles = soup.find_all("div", {'class': "relative player-seat flex flex-col items-center pointer-events-auto"})
     seat_counter = 0
@@ -59,6 +63,7 @@ def parse_game(link):
     game_date = datetime.datetime.now()
     game_data["game_date"] = game_date.strftime("%d/%m/%Y %H:%M:%S")
     game_data["pack_name"] = pack_name.lstrip().rstrip()
+    game_data["fable_list"] = fable_list
     game_data["player_data"] = player_data
 
     game_data_save(game_data)
